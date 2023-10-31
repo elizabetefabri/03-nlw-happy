@@ -1,0 +1,30 @@
+:root {
+    font-size: 60%;
+    --color-background: #EBF2F5;
+    --color-primary-gradient: radial-gradient(circle, rgba(0,236,236,1) 23%, rgba(41,182,209,1) 100%);;
+    --color-btn-yellow: #FFD666;
+    --color-btn-blue: #15C3D6;
+    --color-btn-hover: #96FEFF;
+    --color-box-base: #FFFFFF;
+    --color-box-footer: #FAFAFC;
+}
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--color-background);
+    color: var(--color-box-base);
+}
+
+body, input, button, textarea {
+    font: 600 18px Nunito, sans-serif;
+}
+
+@media (min-width: 700px) {
+    :root {
+        font-size: 62.5%;
+    }
+}

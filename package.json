@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "react-icons": "^4.11.0",
+    "react-leaflet": "^4.2.1",
+    "react-router-dom": "^6.18.0"
+  },
+  "devDependencies": {
+    "@types/react-leaflet": "^3.0.0",
+    "@types/react-router-dom": "^5.3.3"
+  }
+}
