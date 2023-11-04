@@ -16,7 +16,12 @@
 - [SQLite3](https://www.sqlite.org/index.html)
 - [TypeScript](https://www.typescriptlang.org/)
 - [ReactJS](https://react.dev/)
- 
+- [Express](https://expressjs.com/pt-br/)
+- [TypeOrm](https://typeorm.io/)
+- [Yup](https://www.jsdocs.io/package/yup)
+- [Multer](https://github.com/expressjs/multer)
+- [Cors](https://expressjs.com/en/resources/middleware/cors.html)
+
 ## 💻 Projeto
 
 O Happy é uma aplicação que conecta pessoas à casas de acolhimento institucional para fazer o dia de muitas crianças mais feliz 💜
