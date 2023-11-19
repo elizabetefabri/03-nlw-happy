@@ -1,85 +1,142 @@
-
-
-import {FaWhatsapp} from "react-icons/fa";
-import {FiClock, FiInfo} from "react-icons/fi";
-import {Marker} from "react-leaflet";
-
-import mapMarkerImg from '../../assets/images/map-marker.svg';
+import { useEffect, useState } from "react";
+import { MapContainer, Marker, TileLayer } from "react-leaflet";
+import { Link, useParams, Outlet } from "react-router-dom";
 import Map from "../../Components/Map";
-import L from "leaflet";
-
-import './styles.css';
+import { FaWhatsapp } from "react-icons/fa";
+import { FiClock, FiInfo } from "react-icons/fi";
 import PrimaryButton from "../../Components/PrimaryButton";
-import {Link} from "react-router-dom";
 import Sidebar from "../../Components/Sidebar";
+import mapIcon from "../../utils/mapIcon.ts";
+import api from "../../services/api.ts";
+import {Skeleton} from "@mui/material";
+import "./styles.css";
 
-const happyMapIcon = L.icon({
-    iconUrl: mapMarkerImg,
 
-    iconSize: [58, 68],
-    iconAnchor: [29, 68],
-    popupAnchor: [0, -60]
-})
+interface Orphanage {
+    latitude: number;
+    longitude: number;
+    name: string;
+    about: string;
+    instructions: string;
+    opening_hours: string;
+    open_on_weekends: string;
+    images: {
+        id: number;
+        url: string;
+    }[];
+}
 
-export default function Orphanage() {
+interface OrphanageParams {
+    id: string;
+}
+
+export function Orphanage() {
+    const { id } = useParams<OrphanageParams>();
+    const [orphanage, setOrphanage] = useState<Orphanage | null>(null);
+    const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+    useEffect(() => {
+        api.get(`/orphanages/${id}`).then((response) => {
+            setOrphanage(response.data);
+        });
+    }, [id]);
+
+    if (!orphanage) {
+        return (
+            <div>
+                <Skeleton height={200} width={200} />
+
+            </div>
+        );
+    }
+
     return (
         <div id="page-orphanage">
             <Sidebar />
             <main>
                 <div className="orphanage-details">
-                    <img src="https://i.imgur.com/0c4yU4P.png" alt="Lar das meninas" />
+                    <img
+                        src={orphanage?.images[activeImageIndex].url}
+                        alt={orphanage?.name}
+                    />
 
                     <div className="images">
-                        <button className="active" type="button">
-                            <img src="https://i.imgur.com/FLau5i8.png" alt="Lar das meninas" />
-                        </button>
-                        <button type="button">
-                            <img src="https://i.imgur.com/0c4yU4P.png" alt="Lar das meninas" />
-                        </button>
-                        <button type="button">
-                            <img src="https://i.imgur.com/qF0iWkr.png" alt="Lar das meninas" />
-                        </button>
-                        <button type="button">
-                            <img src="https://i.imgur.com/7e5dDEr.png" alt="Lar das meninas" />
-                        </button>
-
+                        {orphanage?.images.map((image, index) => {
+                            return (
+                                <button
+                                    key={image.id}
+                                    className={activeImageIndex === index ? "active" : ""}
+                                    type="button"
+                                    onClick={() => {
+                                        setActiveImageIndex(index);
+                                    }}
+                                >
+                                    <img src={image.url} alt={orphanage.name} />
+                                </button>
+                            );
+                        })}
                     </div>
 
                     <div className="orphanage-details-content">
-                        <h1>Associação das Senhoras Cristãs Nosso Lar</h1>
-                        <p>Presta assistência a crianças de 06 a 15 anos que se encontre em situação de risco e/ou vulnerabilidade social.</p>
+                        <h1>{orphanage?.name} </h1>
+                        <p>{orphanage?.about} </p>
 
                         <div className="map-container">
-                            <Map
-                                interactive={false}
-                                center={[-22.2774768,-48.5684985]}
-                                zoom={16}
-                                style={{ width: '100%', height: 280 }}
-                            >
-                                <Marker interactive={false} icon={happyMapIcon} position={[-22.2774768,-48.5684985]} />
-                            </Map>
+                            <MapContainer>
+                                <Map
+                                    center={[orphanage?.latitude, orphanage?.longitude]}
+                                    zoom={16}
+                                    style={{ width: "100%", height: 280 }}
+                                    dragging={false}
+                                    touchZoom={false}
+                                    zoomControl={false}
+                                    scrollWheelZoom={false}
+                                    doubleClickZoom={false}
+                                >
+                                    <TileLayer url="https://a.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                                    <Marker
+                                        interactive={false}
+                                        icon={mapIcon}
+                                        position={[orphanage?.latitude, orphanage?.longitude]}
+                                    />
+                                </Map>
+                            </MapContainer>
 
                             <footer>
-                                <Link to="">Ver rotas no Google Maps</Link>
+                                <Link
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    to={`https://www.google.com/maps/dir/?api=1&destination=${orphanage.latitude},${orphanage.longitude}`}
+                                >
+                                    Ver rotas no Google Maps
+                                </Link>
                             </footer>
                         </div>
 
                         <hr />
 
                         <h2>Instruções para visita</h2>
-                        <p>Venha como se sentir mais à vontade e traga muito amor para dar.</p>
+                        <p>{orphanage.instructions}</p>
 
                         <div className="open-details">
                             <div className="hour">
                                 <FiClock size={32} color="#15B6D6" />
                                 Segunda à Sexta <br />
-                                8h às 18h
+                                {orphanage.opening_hours}
                             </div>
-                            <div className="open-on-weekends">
-                                <FiInfo size={32} color="#39CC83" />
-                                Atendemos <br />
-                                fim de semana
-                            </div>
+                            {orphanage.open_on_weekends ? (
+                                <div className="open-on-weekends">
+                                    <FiInfo size={32} color="#39CC83" />
+                                    Atendemos <br />
+                                    fim de semana
+                                </div>
+                            ) : (
+                                <div className="open-on-weekends dont-open">
+                                    <FiInfo size={32} color="#FF669D" />
+                                    Não atendemos <br />
+                                    fim de semana
+                                </div>
+                            )}
                         </div>
 
                         <PrimaryButton type="button">
@@ -88,6 +145,7 @@ export default function Orphanage() {
                         </PrimaryButton>
                     </div>
                 </div>
+                <Outlet />
             </main>
         </div>
     );
